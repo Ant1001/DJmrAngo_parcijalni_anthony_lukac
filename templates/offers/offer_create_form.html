@@ -25,9 +25,11 @@
                         <!-- Customer -->
                         <div class="mb-3">
                             <label for="customer" class="form-label">Customer</label>
-                            <select name="customer" id="customer" class="form-select">
-                                {% for customer in customers %}
-                                <option value="{{ customer.id }}">{{ customer.username }}</option>
+                            <<select name="customer" class="form-control" id="id_customer" required>
+    <option value="">-- Odaberi kupca --</option>
+    {% for customer in customers %}
+        <option value="{{ customer.id }}">
+            {{ customer.name }} ({{ customer.vat_id }}) - {{ customer.city }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -35,7 +37,7 @@
                         <!-- Date -->
                         <div class="mb-3">
                             <label for="date" class="form-label">Date</label>
-                            <input type="date" name="date" id="date" class="form-control">
+                            <input type="date" name="date" id="date" class="form-control">value="{{ today|date:'Y-m-d' }}" required>
                         </div>
 
                         <!-- Items -->

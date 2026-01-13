@@ -1,11 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
-from .models import Offer, OfferItem
-from products.models import Product
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from decimal import Decimal
+from customers.models import Customer  # ← OVO!
+from .models import Offer, OfferItem
+from products.models import Product
+
 
 
 @login_required
@@ -71,7 +73,6 @@ def offer_detail(request, pk):
     # HTML response
     return render(request, 'offers/offer_detail.html', {'offer': offer, 'items': items})
 
-
 @login_required
 @require_http_methods(["GET", "POST"])
 def offer_create(request):
@@ -86,24 +87,33 @@ def offer_create(request):
         # Calculate sub_total, tax, and total dynamically
         products = Product.objects.filter(id__in=product_ids)
         sub_total = sum(product.price for product in products)
-        tax = sub_total * Decimal('0.2')  # Assuming a fixed 20% tax rate
+        tax = sub_total * Decimal('0.2')  
         total = sub_total + tax
 
-        customer = get_object_or_404(User, id=customer_id)
-        offer = Offer.objects.create(customer=customer, date=date, sub_total=sub_total, tax=tax, total=total)
+        # FIXED: Koristi Customer model
+        customer = get_object_or_404(Customer, id=customer_id)
+        offer = Offer.objects.create(
+            customer=customer, 
+            date=date, 
+            sub_total=sub_total, 
+            tax=tax, 
+            total=total,
+            user=request.user  # Dodaj user ako treba
+        )
 
         for product in products:
             OfferItem.objects.create(offer=offer, product=product, quantity=1)
 
         return redirect('offer_list')
 
-    # Render the create form template
-    customers = User.objects.all()
+    # FIXED: Koristi Customer.objects
+    customers = Customer.objects.all()
     products = Product.objects.all()
     return render(request,
                   'offers/offer_create_form.html',
                   {'customers': customers,
                    'products': products})
+
 
 
 @login_required
@@ -144,7 +154,8 @@ def offer_edit(request, pk):
         return redirect('offer_detail', pk=offer.id)
 
     # Render the edit form template
-    customers = User.objects.all()
+    from customers.models import Customer
+    customers = Customer.objects.all()
     return render(
         request,
         'offers/offer_edit_form.html',

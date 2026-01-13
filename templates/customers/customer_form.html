@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}Uredi{% else %}Dodaj{% endif %} Kupca</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Ime tvrtke:</label>
+            {{ form.name }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">OIB:</label>
+            {{ form.vat_id }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Ulica:</label>
+            {{ form.street }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Grad:</label>
+            {{ form.city }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Država:</label>
+            {{ form.country }}
+        </div>
+        
+        <button type="submit" class="btn btn-success">Spremi</button>
+        <a href="{% url 'customers:list' %}" class="btn btn-secondary">Nazad</a>
+    </form>
+</div>
+{% endblock %}
